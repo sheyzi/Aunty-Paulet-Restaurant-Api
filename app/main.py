@@ -34,7 +34,7 @@ app.include_router(
 
 register_tortoise(
     app,
-    db_url="sqlite://data.db",
+    db_url="postgres://zwehbhhckpamxf:74a818468b29c9806d05b39f23fe5c2734033fa44aefd4854c559713482c63ad@ec2-54-159-35-35.compute-1.amazonaws.com:5432/dc42ggsmv5fpha",
     modules={"models": ["app.models"]},
     generate_schemas=True,
     add_exception_handlers=True
@@ -43,7 +43,7 @@ register_tortoise(
 
 TORTOISE_ORM = {
         "connections": {
-            "default": "sqlite://data.db"
+            "default": "postgres://zwehbhhckpamxf:74a818468b29c9806d05b39f23fe5c2734033fa44aefd4854c559713482c63ad@ec2-54-159-35-35.compute-1.amazonaws.com:5432/dc42ggsmv5fpha"
             },
         "apps": {
             "models": {

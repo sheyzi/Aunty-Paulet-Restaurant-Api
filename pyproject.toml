@@ -19,6 +19,7 @@ PyJWT = "^2.1.0"
 aerich = "^0.5.7"
 exponent-server-sdk = "^2.0.0"
 pycryptodome = "^3.10.1"
+asyncpg = "^0.24.0"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"
