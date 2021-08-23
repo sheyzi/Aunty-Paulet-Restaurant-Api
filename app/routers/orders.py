@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import get_current_active_user
-from app.models import user_pydanticOut, user_pydanticIn, order_pydanticIn, OrderItemIn, Order, Product, User, order_pydantic, OrderItem
+from app.models import user_pydanticOut, user_pydanticIn, order_pydanticIn, OrderItemIn, Order, Product, User, order_pydantic, OrderItem, AdminPushToken, admin_push_token
 import random
 from typing import List
 import requests
 from app.repositories.user_repo import get_user_push_token
 import json   
+
+from app.repositories.user_repo import send_push_notification
+
 router = APIRouter(tags=['Orders'])
 
 @router.post('/order', response_model=order_pydantic)
@@ -43,5 +46,12 @@ async def order_product(order_details: order_pydanticIn, order_items: List[Order
 	r = requests.post("https://exp.host/--/api/v2/push/send", data=data)
 	r = r.json()
 	print(r)
+
+	admin_push_tokens = await admin_push_token.from_queryset(AdminPushToken.all())
+	print(admin_push_tokens)
+	push_tokens = []
+	for tokens in admin_push_tokens:
+		push_tokens.append(tokens.push_token)
+	await send_push_notification(push_tokens, 'New Order', 'There is a new food order in Aunty Paulet Restaurant!!')
 	await User.filter(id=current_user.id).update(**user_info.dict(exclude_unset=True))
 	return await order_pydantic.from_queryset_single(Order.get(id=order_obj.id))
