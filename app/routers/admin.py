@@ -20,7 +20,7 @@ from app.models import (Category,
                         category_pydanticUpdate,
                         product_pydanticUpdate,
                         UserPushToken, User, Order,
-                        order_pydantic)
+                        order_pydantic, AdminPushToken, admin_push_token)
 from app.utilities import save_file
 import json
 import requests
@@ -50,8 +50,26 @@ async def get_pending_orders(skip: int = 0, limit: int = 100, current_user: user
 async def set_order_status_to_delivered(id: int, current_user: user_pydanticOut = Depends(get_admin_user)):
     order = await set_order_delivered(id)
     push_token = await UserPushToken.get(user_id=order.user_id)
-    await send_push_notification(push_token.push_token, 'Order delivered', "Your order of ₦{:.2f} has been delivered".format(order.amount), {"screen":"Profile"})
+    await send_push_notification([push_token.push_token], 'Order delivered', "Your order of ₦{:.2f} has been delivered".format(order.amount), {"screen":"Profile"})
     return order
+
+
+@router.get('/push-token')
+async def get_user_token(current_user: user_pydanticOut = Depends(get_admin_user)):
+    push_obj = await AdminPushToken.get_or_none(user_id=current_user.id)
+    return {'push_token': push_obj.push_token}
+
+
+@router.get('/add/push-token')
+async def add_admin_push_token(token: str, current_user: user_pydanticOut = Depends(get_admin_user)):
+    push_obj = await AdminPushToken.get_or_none(user_id=current_user.id)
+    if push_obj != None:
+        await AdminPushToken.filter(id=push_obj.id).update(push_token=token)
+        return {'msg': 'Token added successfully', 'token': token}
+
+    push_obj = await AdminPushToken.create(user_id=current_user.id, push_token=token)
+    return {'msg': 'Token added successfully', 'token': token}
+
 
 @router.get('/order/{id}', response_model=OrderOut)
 async def get_order_by_id(id: int, current_user: user_pydanticOut = Depends(get_admin_user)):

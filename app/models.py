@@ -36,6 +36,10 @@ class UserPushToken(Model):
     push_token = fields.CharField(max_length=255)
 
 
+class AdminPushToken(Model):
+    id = fields.IntField(pk=True, index=True)
+    user = fields.OneToOneField('models.User', related_name='adminToken', on_delete=fields.CASCADE)
+    push_token = fields.CharField(max_length=255)
 
 class Product(Model):
     id = fields.IntField(pk=True, index=True)
@@ -134,6 +138,7 @@ order_item_pydanticIn = pydantic_model_creator(
     OrderItem, name="OrderItemIn", exclude_readonly=True)
 
 user_push_token = pydantic_model_creator(UserPushToken, name="UserPushToken")
+admin_push_token = pydantic_model_creator(AdminPushToken, name="UserPushToken")
 store_settings_pydantic = pydantic_model_creator(StoreSettings, name="StoreSettings")
 
 class OrderItemIn(BaseModel):
