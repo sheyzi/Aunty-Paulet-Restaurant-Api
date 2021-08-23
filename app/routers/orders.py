@@ -24,7 +24,7 @@ async def order_product(order_details: order_pydanticIn, order_items: List[Order
 	order_details.update({"payment_ref_id": payment_ref_id})
 	order_details.update({"user_id": current_user.id})
 	order_details.update({"status":"PAID"})
-	order_details['amount'] = sum + 300
+	order_details['amount'] = sum + 500
 	order_obj = await Order.create(**order_details)
 	await order_obj.save()
 
@@ -47,7 +47,7 @@ async def order_product(order_details: order_pydanticIn, order_items: List[Order
 	r = r.json()
 	print(r)
 
-	admin_push_tokens = await admin_push_token.from_queryset(AdminPushToken.all())
+	admin_push_tokens = await 	admin_push_token.from_queryset(AdminPushToken.all())
 	print(admin_push_tokens)
 	push_tokens = []
 	for tokens in admin_push_tokens:
