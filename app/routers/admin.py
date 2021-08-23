@@ -3,7 +3,13 @@ from starlette import status
 from app.dependencies import get_admin_user
 from app.repositories.user_repo import get_users
 from app.repositories.product_repo import get_products, get_categories
+from app.repositories.order_repo import (get_orders, 
+                                        OrderOut,
+                                        set_order_delivered,
+                                        get_all_pending_orders,
+                                        get_order_id)
 from typing import List
+from app.repositories.user_repo import send_push_notification
 from app.models import (Category,
                         user_pydanticOut,
                         product_pydantic,
@@ -13,7 +19,8 @@ from app.models import (Category,
                         category_pydanticIn,
                         category_pydanticUpdate,
                         product_pydanticUpdate,
-                        UserPushToken, User)
+                        UserPushToken, User, Order,
+                        order_pydantic)
 from app.utilities import save_file
 import json
 import requests
@@ -26,6 +33,30 @@ async def get_all_users(skip: int = 0, limit: int = 100, current_user: user_pyda
     users = await get_users(skip=skip, limit=limit)
     return users
 
+
+@router.get('/orders', response_model=List[order_pydantic])
+async def get_all_orders(skip: int = 0, limit: int = 100, current_user: user_pydanticOut = Depends(get_admin_user)):
+    orders = await get_orders(skip=skip, limit=limit)
+    return orders
+
+
+@router.get('/orders/pending', response_model=List[order_pydantic])
+async def get_pending_orders(skip: int = 0, limit: int = 100, current_user: user_pydanticOut = Depends(get_admin_user)):
+    orders = await get_all_pending_orders(skip=skip, limit=limit)
+    return orders
+
+
+@router.get('/orders/set-status/delivered')
+async def set_order_status_to_delivered(id: int, current_user: user_pydanticOut = Depends(get_admin_user)):
+    order = await set_order_delivered(id)
+    push_token = await UserPushToken.get(user_id=order.user_id)
+    await send_push_notification(push_token.push_token, 'Order delivered', "Your order of ₦{:.2f} has been delivered".format(order.amount), {"screen":"Profile"})
+    return order
+
+@router.get('/order/{id}', response_model=OrderOut)
+async def get_order_by_id(id: int, current_user: user_pydanticOut = Depends(get_admin_user)):
+    order = await get_order_id(id)
+    return order
 
 @router.get('/categories', response_model=List[category_pydantic])
 async def get_all_categories(skip: int = 0, limit: int = 100, current_user: user_pydanticOut = Depends(get_admin_user)):
