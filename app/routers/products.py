@@ -58,7 +58,7 @@ async def get_product_by_slug(slug: str):
                             detail=f"Product with slug '{slug}' doesn't exists")
     return product
 
-@router.get('/encryption-key')
+@router.get('/encryption-key', response_model=store_settings_pydantic)
 async def get_encryption_key(current_user: user_pydanticOut = Depends(get_current_active_user)):
     settings = await StoreSettings.first()
     return settings

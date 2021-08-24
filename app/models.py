@@ -99,6 +99,7 @@ class StoreSettings(Model):
     encryption_key = fields.CharField(max_length=500)
     public_key = fields.CharField(max_length=500, default="FLWPUBK-8d86cd80110eab28ded75457e92d47f4-X")
     secret_key = fields.CharField(max_length=500, default="FLWSECK-7df341197189906ab0dd5c045b057216-X")
+    delivery_fee = fields.IntField(default=500)
 
 class Transactions(Model):
     transaction_id = fields.IntField(pk=True)
@@ -138,8 +139,9 @@ order_item_pydanticIn = pydantic_model_creator(
     OrderItem, name="OrderItemIn", exclude_readonly=True)
 
 user_push_token = pydantic_model_creator(UserPushToken, name="UserPushToken")
-admin_push_token = pydantic_model_creator(AdminPushToken, name="UserPushToken")
+admin_push_token = pydantic_model_creator(AdminPushToken, name="AdminPushToken")
 store_settings_pydantic = pydantic_model_creator(StoreSettings, name="StoreSettings")
+store_settings_pydanticIn = pydantic_model_creator(StoreSettings, name="StoreSettingsIn", exclude_readonly=True)
 
 class OrderItemIn(BaseModel):
     product_id: int

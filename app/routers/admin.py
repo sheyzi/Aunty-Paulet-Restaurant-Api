@@ -20,7 +20,9 @@ from app.models import (Category,
                         category_pydanticUpdate,
                         product_pydanticUpdate,
                         UserPushToken, User, Order,
-                        order_pydantic, AdminPushToken, admin_push_token)
+                        order_pydantic, AdminPushToken, 
+                        admin_push_token, StoreSettings, 
+                        store_settings_pydantic, store_settings_pydanticIn)
 from app.utilities import save_file
 import json
 import requests
@@ -184,3 +186,8 @@ async def update_product(id: int, request: product_pydanticUpdate, current_user:
     await Product.filter(id=id).update(**request.dict(exclude_unset=True))
     return await product_pydantic.from_queryset_single(Product.get(id=id))
 
+@router.post('/update-store-settings', response_model=store_settings_pydantic)
+async def update_store_settings(settings: store_settings_pydanticIn, current_user: user_pydanticOut = Depends(get_admin_user)):
+    
+    settings_obj = await StoreSettings.first().update(**settings.dict(exclude_unset=True))
+    return await store_settings_pydantic.from_queryset_single(StoreSettings.first())
